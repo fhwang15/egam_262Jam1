@@ -54,8 +54,6 @@ public class MonsterSpawning : MonoBehaviour
     {
         while (true)
         {
-            Debug.Log($"몬스터 소환 체크: activeMonsters.Count = {activeMonsters.Count}, spawnPoints.Length = {spawnPoints.Length}");
-            
             if(activeMonsters.Count < spawnPoints.Length)
             {
                 SpawnNote();

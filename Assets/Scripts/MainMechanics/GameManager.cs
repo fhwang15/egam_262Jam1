@@ -13,6 +13,7 @@ public class GameManager : MonoBehaviour
 
     public TextMeshProUGUI totalScore;
 
+
     void Awake()
     {
         // Singleton 패턴으로 Instance 할당
@@ -102,5 +103,6 @@ public class GameManager : MonoBehaviour
     {
         return lockedOnMonster;
     }
+
 
 }
