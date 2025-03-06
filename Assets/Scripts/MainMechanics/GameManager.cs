@@ -1,69 +1,106 @@
+using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
-    public int finalScore;
-    public int currentScore;
 
-    public float SpawnTimeInterval;
-    public float Timer;
+    public static GameManager Instance;
 
-    bool gameStart;
-    private bool isLockedOn = false;  // 록온 상태 추적
-    private Monster lockedOnMonster;  // 록온된 몬스터
-    private int totalScore = 0;
+    private MonsterSpawning monsterSpawning;
+    private Monster lockedOnMonster = null;
+    public int score = 0;
 
-    // 콤보 입력 처리
-    public void InputCombo(char input)
+    public TextMeshProUGUI totalScore;
+
+    void Awake()
     {
-        if (isLockedOn && lockedOnMonster != null)
+        // Singleton 패턴으로 Instance 할당
+        if (Instance == null)
         {
-            int score = lockedOnMonster.ProcessInput(input);
-            if (score > 0)
-            {
-                totalScore += score;
-            }
-            else
-            {
-                EndLockedOnCombo();
-            }
-
-            if (lockedOnMonster.IsComboComplete())
-            {
-                EndLockedOnCombo();
-            }
+            Instance = this;
         }
         else
         {
-            Monster monster = GetMonsterForInput(input);
-            if (monster != null && !isLockedOn)
+            Destroy(gameObject);
+        }
+    }
+    void Start()
+    {
+        monsterSpawning = GetComponent<MonsterSpawning>();
+    }
+
+    void Update()
+    {
+
+        if (Input.anyKeyDown)
+        {
+            string input = Input.inputString.ToUpper();
+            if (string.IsNullOrEmpty(input)) return;
+
+            char pressedKey = input[0];
+
+            if (lockedOnMonster == null)
             {
-                StartLockedOn(monster);
+                TryLockOnMonster(pressedKey);
+            }
+            else
+            {
+                ProcessComboInput(pressedKey);
+            }
+        }
+        totalScore.text = score.ToString();
+    }
+
+    void TryLockOnMonster(char key)
+    {
+        foreach (Monster monster in monsterSpawning.GetActiveMonsters())
+        {
+            if (monster.GetFirstLetter() == key)
+            {
+                if(lockedOnMonster != null)
+                {
+                    lockedOnMonster.SetLockOn(false);
+                }
+
+                lockedOnMonster = monster;
+                lockedOnMonster.SetLockOn(true);
+                return;
             }
         }
     }
 
-    // 특정 입력에 맞는 몬스터를 찾는 함수
-    private Monster GetMonsterForInput(char input)
+    void ProcessComboInput(char key)
     {
-        // 이 부분은 화면에 있는 몬스터들에서 첫 글자가 맞는 몬스터를 찾아야 한다.
-        // 몬스터 리스트에서 첫 글자와 input이 일치하는 몬스터를 찾는 방식으로 구현
-        return FindObjectOfType<Monster>();  // 예시로 한 몬스터만 찾는 코드, 실제론 리스트에서 찾아야 함
+        if (lockedOnMonster != null)
+        {
+            int gainedScore = lockedOnMonster.ProcessInput(key);
+            if (gainedScore > 0)
+            {
+                score += gainedScore;
+            }
+            else
+            {
+                lockedOnMonster.SetLockOn(false);
+                lockedOnMonster = null;
+            }
+
+            if (lockedOnMonster != null && lockedOnMonster.IsComboComplete())
+            {
+                lockedOnMonster.SetLockOn(false);
+                lockedOnMonster = null; 
+            }
+        }
     }
 
-    // 록온 시작
-    private void StartLockedOn(Monster monster)
+    public void ClearLockOn()
     {
-        isLockedOn = true;
-        lockedOnMonster = monster;
-        lockedOnMonster.SetCombo(lockedOnMonster.GetFirstLetter().ToString());  // 해당 몬스터의 콤보로 설정
-    }
-
-    // 록온 종료
-    private void EndLockedOnCombo()
-    {
-        isLockedOn = false;
         lockedOnMonster = null;
+    }
+
+    public Monster GetLockedOnMonster()
+    {
+        return lockedOnMonster;
     }
 
 }

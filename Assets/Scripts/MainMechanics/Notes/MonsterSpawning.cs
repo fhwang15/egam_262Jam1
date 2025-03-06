@@ -5,6 +5,7 @@ using System.Linq;
 
 public class MonsterSpawning : MonoBehaviour
 {
+    public static MonsterSpawning Instance;
     //Spawning Related
     public GameObject monsterPrefab;
     public Transform[] spawnPoints;
@@ -21,8 +22,24 @@ public class MonsterSpawning : MonoBehaviour
     //private List<char> availableFirstLetter;
 
     public List<char> usedFirstLetters = new List<char>();
+    private List<Monster> activeMonsters = new List<Monster>();
 
     public string[] generatedComboList;
+
+
+    void Awake()
+    {
+        if (Instance == null)
+        {
+            Instance = this;
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+    }
+
+
     void Start()
     {
         comboChars = new List<char> { 'A', 'S', 'D', 'F', 'H', 'J', 'K', 'L' };
@@ -37,59 +54,77 @@ public class MonsterSpawning : MonoBehaviour
     {
         while (true)
         {
-            SpawnNote();
-            yield return new WaitForSeconds(1f); // 노트 생성 간격
+            Debug.Log($"몬스터 소환 체크: activeMonsters.Count = {activeMonsters.Count}, spawnPoints.Length = {spawnPoints.Length}");
+            
+            if(activeMonsters.Count < spawnPoints.Length)
+            {
+                SpawnNote();
+            }
+            yield return new WaitForSeconds(1f);
             DecreaseMonsterTime();
         }
     }
 
     void SpawnNote()
     {
-
         if (spawnPoints.Length == 0)
         {
-            Debug.LogWarning("Spawn points are empty!"); // 디버깅용
-            return; // spawnPoints가 비어 있으면 아무것도 생성하지 않음
+            return;
         }
 
-        Debug.Log("Am I called?");
-        if (spawnPoints.Length == 0) return;
-
-        Transform spawnPoint = spawnPoints[Random.Range(0, spawnPoints.Length)];
-        GameObject note = Instantiate(monsterPrefab, spawnPoint.position, Quaternion.identity);
-
-        string combo = ComboGenerator();
-        if(combo != null)
+        foreach (Transform spawnPoint in spawnPoints)
         {
-            comboQueue.Enqueue(combo);
-            note.GetComponent<Monster>().SetCombo(combo);
+            if (!spawnPointOccupied(spawnPoint))
+            {
+
+                GameObject note = Instantiate(monsterPrefab, spawnPoint.position, Quaternion.identity);
+                Monster monster = note.GetComponent<Monster>();
+                string combo = ComboGenerator();
+                if (combo != null)
+                {
+                    comboQueue.Enqueue(combo);
+                    monster.SetCombo(combo);
+                    activeMonsters.Add(monster);
+                }
+
+                StartCoroutine(DestroyAfterTime(monster, currentMonsterTime));
+                return;
+            }
         }
-
-
-        StartCoroutine(DestroyAfterTime(note, currentMonsterTime));
     }
 
-    IEnumerator DestroyAfterTime(GameObject note, float time)
+    IEnumerator DestroyAfterTime(Monster monster, float time)
     {
         yield return new WaitForSeconds(time);
-        if (note != null) Destroy(note);
 
-        if (comboQueue.Count > 0)
+        if (monster != null)
         {
-            string removedCombo = comboQueue.Dequeue();
-            Debug.Log("콤보 제거: " + removedCombo);
+            activeMonsters.Remove(monster);
+            RemoveTheFirstLetter(monster.GetFirstLetter());
+            Destroy(monster.gameObject);
         }
 
-        char firstLetter = note.GetComponent<Monster>().GetFirstLetter(); 
-        RemoveTheFirstLetter(firstLetter);
-
     }
+
+    bool spawnPointOccupied(Transform spawnPoint)
+    {
+        foreach (Monster monster in activeMonsters)
+        {
+            if (monster.transform.position == spawnPoint.position)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
 
     void DecreaseMonsterTime()
     {
         if (currentMonsterTime > minMonsterTime)
         {
-            currentMonsterTime -= difficultyIncreaseRate;
+            return;
+            //currentMonsterTime -= difficultyIncreaseRate;
         }
     }
 
@@ -100,6 +135,10 @@ public class MonsterSpawning : MonoBehaviour
 
         if(availableFirstLetters.Count == 0) 
         {
+            Debug.LogWarning(" 사용할 수 있는 첫 글자가 부족해서 몬스터를 소환할 수 없음!");
+            usedFirstLetters.Clear(); 
+            availableFirstLetters = new List<char>(comboChars);
+
             return null; //All letters have been used = max monster spawned
         }
 
@@ -112,13 +151,11 @@ public class MonsterSpawning : MonoBehaviour
         currentGeneratedCombo += firstLetter;
         usedFirstLetters.Add(firstLetter);
 
-        for (int i = 0; i < comboLength; i++)
+        for (int i = 1; i < comboLength; i++)
         {
             char randomKey = comboChars[Random.Range(0, comboChars.Count)];
             currentGeneratedCombo += randomKey;
         }
-
-        Debug.Log("Generated Combo is " + currentGeneratedCombo);
         return currentGeneratedCombo;
     }
 
@@ -129,6 +166,34 @@ public class MonsterSpawning : MonoBehaviour
 
             usedFirstLetters.Remove(letter);
         }
+    }
+
+    public void RemoveMonster(Monster monster)
+    {
+        if (monster != null)
+        {
+            RemoveTheFirstLetter(monster.GetFirstLetter());
+            Destroy(monster.gameObject);
+
+
+            if (activeMonsters.Contains(monster))
+            {
+                activeMonsters.Remove(monster);
+            }
+
+
+
+            if (GameManager.Instance != null && GameManager.Instance.GetLockedOnMonster() == monster)
+            {
+                GameManager.Instance.ClearLockOn(); 
+            }
+        }
+    }
+
+
+    public List<Monster> GetActiveMonsters()
+    {
+        return activeMonsters;
     }
 
 }
