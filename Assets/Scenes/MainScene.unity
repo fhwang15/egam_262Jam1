@@ -3881,6 +3881,7 @@ GameObject:
   - component: {fileID: 2092756126}
   - component: {fileID: 2092756125}
   - component: {fileID: 2092756127}
+  - component: {fileID: 2092756128}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -3902,7 +3903,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   score: 0
   totalScore: {fileID: 665594911}
-  scoreboardContainer: {fileID: 0}
 --- !u!4 &2092756126
 Transform:
   m_ObjectHideFlags: 0
@@ -3939,7 +3939,19 @@ MonoBehaviour:
   initialMonsterTime: 5
   minMonsterTime: 1
   difficultyIncreaseRate: 0.05
-  usedFirstLetters: 
+  monsterSpawnTime: 3
+--- !u!114 &2092756128
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2092756124}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4fc1124d18c7df74b91335d9d37ba423, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
   generatedComboList: []
 --- !u!1660057539 &9223372036854775807
 SceneRoots:

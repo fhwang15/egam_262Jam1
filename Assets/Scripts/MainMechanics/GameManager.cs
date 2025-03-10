@@ -4,8 +4,8 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
-
     public static GameManager Instance;
+
 
     private MonsterSpawning monsterSpawning;
     private Monster lockedOnMonster = null;
@@ -27,6 +27,7 @@ public class GameManager : MonoBehaviour
         }
     }
     void Start()
+    
     {
         monsterSpawning = GetComponent<MonsterSpawning>();
     }

@@ -1,44 +1,61 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System.Collections;
+using System.Linq;
+using JetBrains.Annotations;
 
 public class ComboGenerator : MonoBehaviour
-{
+{ 
+    private List<List<char>> codeList;
+    private List<char> usedFirstLetters;
 
-    private List<char> comboChars;
-    private List<char> nextFirstLetter;
-
-    public string currentGeneratedCombo;
-
-    public string[] generatedComboList;
-
-    void Start()
+    private void Start()
     {
-        comboChars = new List<char> { 'A', 'S', 'D', 'F', 'H', 'J', 'K', 'L' };
+        codeList = new List<List<char>> { new List<char> { 'A', 'S', 'D', 'F' }, new List<char> { 'Q', 'W', 'E', 'R' } };
+        usedFirstLetters = new List<char>();
+    }
 
-        nextFirstLetter = new List<char>(comboChars);
-        
+    //Will generate Combo once called
+    public string generateCombo()
+    {
+        //List that will be used for this time's code generator
+        List<char> chosenCodelist = codeList[ Random.Range(0, codeList.Count)];
 
-        generatedComboList = new string[5];
+        //Letters that will be used for next
+        List<char> availableFirstLetter = chosenCodelist.Except(usedFirstLetters).ToList();
 
-        for (int i = 0; i < 5; i++)
+        if(availableFirstLetter.Count == 0)
         {
+            usedFirstLetters.Clear();
+            availableFirstLetter = new List<char>(chosenCodelist);
+            return ""; //Letters 
+        }
 
-            int comboLength = Random.Range(2, comboChars.Count);//Length of code
 
+        string currentGeneratedCombo = ""; //Variables that will save the generated combo
+        
+        int comboLength = Random.Range(2, chosenCodelist.Count);
+        
+        int index = Random.Range(0, availableFirstLetter.Count);
+        char firstLetter = availableFirstLetter[index];
+        currentGeneratedCombo += firstLetter; //Adds the first letter into the generatedCombo
+        usedFirstLetters.Add(firstLetter); //Adds the first letter in the used first letter list.
 
-
-            char randomKey = comboChars[Random.Range(0, comboChars.Count)];
+        for (int i = 1; i < comboLength; i++)
+        { 
+            char randomKey = chosenCodelist[Random.Range(0, chosenCodelist.Count)];
             currentGeneratedCombo += randomKey;
         }
 
-        Debug.Log("Generated Combo is " + currentGeneratedCombo);
-
+        return currentGeneratedCombo; //Give the generated code
     }
 
-    // Update is called once per frame
-    void Update()
+    public void RemoveTheFirstLetter(char letter)
     {
-        
+        if (usedFirstLetters.Contains(letter))
+        {
+
+            usedFirstLetters.Remove(letter);
+        }
     }
 }
