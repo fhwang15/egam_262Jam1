@@ -104,6 +104,7 @@ MonoBehaviour:
   monsters: []
   combo: 
   comboScores: 0a000000140000001e000000320000005000000082000000d200000054010000
+  currentscore: 0
   comboIndicator: {fileID: 5482426481319493471}
 --- !u!1 &6216535543130141574
 GameObject:
@@ -189,7 +190,7 @@ MonoBehaviour:
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
   m_DynamicPixelsPerUnit: 1
-  m_PresetInfoIsWorld: 0
+  m_PresetInfoIsWorld: 1
 --- !u!114 &5983318992216374894
 MonoBehaviour:
   m_ObjectHideFlags: 0

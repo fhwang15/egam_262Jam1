@@ -6,31 +6,29 @@ using JetBrains.Annotations;
 
 public class ComboGenerator : MonoBehaviour
 { 
-    private List<List<char>> codeList;
-    private List<char> usedFirstLetters;
-
-    private void Start()
-    {
-        codeList = new List<List<char>> { new List<char> { 'A', 'S', 'D', 'F' }, new List<char> { 'Q', 'W', 'E', 'R' } };
-        usedFirstLetters = new List<char>();
-    }
+    private List<List<char>> codeList = new List<List<char>> { new List<char> { 'A', 'S', 'D', 'F' }, new List<char> { 'Q', 'W', 'E', 'R' } };
+    private List<char> usedFirstLetters = new List<char>();
 
     //Will generate Combo once called
     public string generateCombo()
     {
+        if (codeList == null || codeList.Count == 0)
+        {
+            return null;
+        }
+
         //List that will be used for this time's code generator
-        List<char> chosenCodelist = codeList[ Random.Range(0, codeList.Count)];
+        List<char> chosenCodelist = codeList[0];
 
         //Letters that will be used for next
         List<char> availableFirstLetter = chosenCodelist.Except(usedFirstLetters).ToList();
-
         if(availableFirstLetter.Count == 0)
         {
             usedFirstLetters.Clear();
             availableFirstLetter = new List<char>(chosenCodelist);
             return ""; //Letters 
         }
-
+        
 
         string currentGeneratedCombo = ""; //Variables that will save the generated combo
         

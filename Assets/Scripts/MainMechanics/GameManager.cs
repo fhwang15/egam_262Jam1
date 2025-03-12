@@ -4,8 +4,10 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
-    public static GameManager Instance;
 
+    //Player Input and Overall Scoring
+
+    public static GameManager Instance;
 
     private MonsterSpawning monsterSpawning;
     private Monster lockedOnMonster = null;
@@ -13,10 +15,8 @@ public class GameManager : MonoBehaviour
 
     public TextMeshProUGUI totalScore;
 
-
     void Awake()
     {
-        // Singleton 패턴으로 Instance 할당
         if (Instance == null)
         {
             Instance = this;
@@ -27,7 +27,6 @@ public class GameManager : MonoBehaviour
         }
     }
     void Start()
-    
     {
         monsterSpawning = GetComponent<MonsterSpawning>();
     }
@@ -35,19 +34,22 @@ public class GameManager : MonoBehaviour
     void Update()
     {
 
+        //Player Input
         if (Input.anyKeyDown)
         {
-            string input = Input.inputString.ToUpper();
-            if (string.IsNullOrEmpty(input)) return;
+            string input = Input.inputString.ToUpper(); //Change every key into Uppercase
+            if (string.IsNullOrEmpty(input)) return; //if input is empty, just return.
 
-            char pressedKey = input[0];
+            char pressedKey = input[0]; //Get the first letter
 
             if (lockedOnMonster == null)
             {
+                //if there's no locked on monster, try locking it on.
                 TryLockOnMonster(pressedKey);
             }
             else
             {
+                //if not, see if it's matching the next key.
                 ProcessComboInput(pressedKey);
             }
         }
@@ -56,17 +58,24 @@ public class GameManager : MonoBehaviour
 
     void TryLockOnMonster(char key)
     {
+        //Look for the already spawned monster with matching first letter
         foreach (Monster monster in monsterSpawning.GetActiveMonsters())
         {
+            //if it matches
             if (monster.GetFirstLetter() == key)
             {
+                //if already locked monster exists,
                 if(lockedOnMonster != null)
                 {
+                    //unlock the already set on lock (cuz it means that it is wrong)
                     lockedOnMonster.SetLockOn(false);
                 }
 
+                //Lock on the monster if nothing is locked.
                 lockedOnMonster = monster;
                 lockedOnMonster.SetLockOn(true);
+
+                //Some kind of visual affect -- probably layer mask.
                 return;
             }
         }
@@ -77,6 +86,7 @@ public class GameManager : MonoBehaviour
         if (lockedOnMonster != null)
         {
             int gainedScore = lockedOnMonster.ProcessInput(key);
+
             if (gainedScore > 0)
             {
                 score += gainedScore;

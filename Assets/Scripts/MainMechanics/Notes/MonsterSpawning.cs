@@ -15,7 +15,7 @@ public class MonsterSpawning : MonoBehaviour
     public float initialMonsterTime = 3f;
     public float minMonsterTime = 1f;
     public float difficultyIncreaseRate = 0.05f; //Will be used later
-    public float monsterSpawnTime = 3f;
+    public float monsterSpawnTime;
 
     private float currentMonsterTime; //
 
@@ -37,7 +37,7 @@ public class MonsterSpawning : MonoBehaviour
 
     void Start()
     {
-        comboGenerator = GetComponent<ComboGenerator>();
+        comboGenerator = GetComponent<ComboGenerator>(); //Calls the ComboGenerator Script (Script that creates the code)
         currentMonsterTime = initialMonsterTime;
         StartCoroutine(SpawnMonster());
     }
@@ -62,25 +62,23 @@ public class MonsterSpawning : MonoBehaviour
             return;
         }
 
-
-        //Random Spawn Generator
-
-        Transform currentSpawn = spawnPoints[Random.Range(0, spawnPoints.Length)];
-        
-        if (!spawnPointOccupied(currentSpawn))
+        while (true)
         {
-            GameObject note = Instantiate(monsterPrefab, currentSpawn.position, Quaternion.identity);
-            Monster monster = note.GetComponent<Monster>();
-            string combo = comboGenerator.generateCombo();
-            Debug.Log(combo);
-            if (combo != null)
+            Transform currentSpawn = spawnPoints[Random.Range(0, spawnPoints.Length)];
+            if (!spawnPointOccupied(currentSpawn))
             {
-                monster.SetCombo(combo);
-                activeMonsters.Add(monster);
-            }
+                GameObject note = Instantiate(monsterPrefab, currentSpawn.position, Quaternion.identity);
+                Monster monster = note.GetComponent<Monster>();
+                string combo = comboGenerator.generateCombo();
+                if (combo != null)
+                {
+                    monster.SetCombo(combo);
+                    activeMonsters.Add(monster);
+                }
 
-            StartCoroutine(DestroyAfterTime(monster, currentMonsterTime));
-            return;
+                StartCoroutine(DestroyAfterTime(monster, currentMonsterTime));
+                return;
+            }
         }
     }
 
