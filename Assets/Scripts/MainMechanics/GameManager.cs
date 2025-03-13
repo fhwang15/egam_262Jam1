@@ -15,8 +15,8 @@ public class GameManager : MonoBehaviour
     public TextMeshProUGUI totalScore;
 
     //UI/Visual Feedback
-    public GameObject lockOnBackground;
-    
+    public GameObject lockOnBackground; 
+
 
     void Awake()
     {
@@ -31,9 +31,8 @@ public class GameManager : MonoBehaviour
     }
     void Start()
     {
-        lockOnBackground.SetActive(false);
         monsterSpawning = GetComponent<MonsterSpawning>();
-
+        lockOnBackground.SetActive(false);
         
     }
 
@@ -75,18 +74,17 @@ public class GameManager : MonoBehaviour
                 {
                     //unlock the already set on lock (cuz it means that it is wrong)
                     lockedOnMonster.SetLockOn(false);
-                    lockOnBackground.SetActive(false);
                 }
 
                 //Lock on the monster if nothing is locked.
                 lockedOnMonster = monster;
                 lockedOnMonster.SetLockOn(true);
 
-                lockOnBackground.SetActive(true);
                 return;
             }
         }
     }
+
 
     void ProcessComboInput(char key)
     {
@@ -100,29 +98,36 @@ public class GameManager : MonoBehaviour
             }
             else
             {
+                ClearLockOn();
                 lockedOnMonster.SetLockOn(false);
-                lockOnBackground.SetActive(false);
                 lockedOnMonster = null;
+                return;
             }
 
             if (lockedOnMonster != null && lockedOnMonster.IsComboComplete())
             {
                 lockedOnMonster.SetLockOn(false);
-                lockOnBackground.SetActive(false);
-                lockedOnMonster = null; 
+                lockedOnMonster = null;
             }
         }
     }
 
     public void ClearLockOn()
     {
-        lockedOnMonster = null;
+        if (lockedOnMonster != null)
+        {
+            lockedOnMonster.SetLockOn(false);
+            lockedOnMonster = null;
+
+        }
+
+        lockOnBackground.SetActive(false);
+
     }
 
     public Monster GetLockedOnMonster()
     {
         return lockedOnMonster;
     }
-
 
 }

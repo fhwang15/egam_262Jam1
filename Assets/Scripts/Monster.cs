@@ -8,7 +8,9 @@ using UnityEngine.UI;
 
 public class Monster : MonoBehaviour
 {
-    public List<Sprite> monsters; //Sprites (TBD)
+    public List<Sprite> monsters;
+    public SpriteRenderer sprite;
+
     public string combo; 
     private int currentComboIndex = 0; 
     public int[] comboScores = new int[] { 50, 100, 250, 500, 1500, 130, 210, 340 };
@@ -22,6 +24,8 @@ public class Monster : MonoBehaviour
     //UI Element
     public GameObject keyUICircle;
     public Transform KeyTransform;
+    public Canvas monsterCanvas;
+    private int originalSortingOrder;
 
     void Start()
     {
@@ -29,6 +33,12 @@ public class Monster : MonoBehaviour
         {
             monsterSpawning = MonsterSpawning.Instance;
         }
+
+        sprite = GetComponentInChildren<SpriteRenderer>();
+        sprite.sprite = monsters[Random.Range(0, monsters.Count)];
+        monsterCanvas = GetComponentInChildren<Canvas>();
+        originalSortingOrder = monsterCanvas.sortingOrder;
+
 
         isLockedOn = false;
         scoreAdd = false;
@@ -53,7 +63,27 @@ public class Monster : MonoBehaviour
     {
         isLockedOn = state; //Locked on.
         UpdateComboUI();
+
+        if (state)
+        {
+            GameManager.Instance.lockOnBackground.SetActive(true);
+
+            // 현재 몬스터의 우선순위를 최상위로 변경
+            monsterCanvas.sortingOrder = 200;
+            sprite.sortingOrder = 200;
+
+            // LockOnBackground는 그보다 낮게 설정
+            GameManager.Instance.lockOnBackground.GetComponentInParent<Canvas>().sortingOrder = 150;
+        }
+        else
+        {
+            // 원래 상태로 복원
+            GameManager.Instance.lockOnBackground.SetActive(false);
+            monsterCanvas.sortingOrder = originalSortingOrder;
+            sprite.sortingOrder = originalSortingOrder;
+        }
     }
+
     public void SetCombo(string newCombo)
     {
         combo = newCombo;
@@ -145,7 +175,7 @@ public class Monster : MonoBehaviour
 
         if (isLockedOn)
         {
-            //pulls up the layer mask of current monster prefab. 
+
         }
         else
         {
@@ -158,7 +188,6 @@ public class Monster : MonoBehaviour
         Image buttonImage = KeyTransform.GetChild(index).GetComponentInChildren<Image>();
         buttonImage.color = new Color(0.5f, 0.5f, 0.5f, 1f); // 어둡게 변경
     }
-
 
     public void provideScore()
     {

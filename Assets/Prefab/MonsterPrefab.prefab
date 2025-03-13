@@ -60,7 +60,7 @@ Canvas:
   m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 5
   m_TargetDisplay: 0
 --- !u!114 &2054147888331680732
 MonoBehaviour:
@@ -154,11 +154,13 @@ MonoBehaviour:
   - {fileID: -2886950429533793665, guid: d144e30e21f2fff42b2a35ab5561b534, type: 3}
   - {fileID: 2282194482853094087, guid: 1498cf9908709c44caf9841993e182a4, type: 3}
   - {fileID: -6155282407105978113, guid: bd5b9af74bdec5448b4fcf956ecbc5e4, type: 3}
+  sprite: {fileID: 6684126077030221740}
   combo: 
   comboScores: 0a000000140000001e000000320000005000000082000000d200000054010000
   currentscore: 0
   keyUICircle: {fileID: 7755472495506244681, guid: a0868f507aa6f0148b8f7fabda08d838, type: 3}
   KeyTransform: {fileID: 1897465236282778526}
+  monsterCanvas: {fileID: 0}
 --- !u!1 &6492989372970642279
 GameObject:
   m_ObjectHideFlags: 0

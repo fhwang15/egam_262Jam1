@@ -72,13 +72,13 @@ public class MonsterSpawning : MonoBehaviour
                 Monster monster = note.GetComponent<Monster>();
                 string combo = comboGenerator.generateCombo();
 
-                
+
                 if (combo != null)
                 {
                     monster.SetCombo(combo);
                     activeMonsters.Add(monster);
-                }
 
+                }
                 StartCoroutine(DestroyAfterTime(monster, currentMonsterTime));
                 return;
             }
