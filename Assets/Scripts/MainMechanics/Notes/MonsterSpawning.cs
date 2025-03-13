@@ -117,8 +117,8 @@ public class MonsterSpawning : MonoBehaviour
     {
         if (currentMonsterTime > minMonsterTime)
         {
-            return;
             //currentMonsterTime -= difficultyIncreaseRate;
+            return;
         }
     }
 
@@ -150,17 +150,7 @@ public class MonsterSpawning : MonoBehaviour
         return activeMonsters;
     }
 
-    public void SpawnCoolDown(float cooldown)
-    {
-        StartCoroutine((SpawnCooldownRoutine(cooldown)));
-    }
 
-    IEnumerator SpawnCooldownRoutine(float cooldown)
-    {
-        spawnDelay = true;
-        yield return new WaitForSeconds(cooldown);
-        spawnDelay = false;
-    }
     
 
 }

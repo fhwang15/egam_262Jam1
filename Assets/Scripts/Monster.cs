@@ -34,6 +34,8 @@ public class Monster : MonoBehaviour
     public float timerDuration;
     private float timeRemaining;
 
+    private CircleController magicCircle;
+
 
     void Start()
     {
@@ -41,6 +43,8 @@ public class Monster : MonoBehaviour
         {
             monsterSpawning = MonsterSpawning.Instance;
         }
+
+        magicCircle = GetComponent<CircleController>();
 
         sprite = GetComponentInChildren<SpriteRenderer>();
         sprite.sprite = monsters[Random.Range(0, monsters.Count)];
@@ -190,6 +194,8 @@ public class Monster : MonoBehaviour
 
             Transform keyChild = KeyTransform.GetChild(index);
             Image buttonImage = keyChild.Find("Image").GetComponent<Image>();
+            magicCircle.OnComboInput();
+
             buttonImage.color = new Color(0.5f, 0.5f, 0.5f, 1f);
             ShowFloatingText(index);
         }
@@ -237,12 +243,11 @@ public class Monster : MonoBehaviour
         yield return new WaitForSeconds(1.5f);
 
         monsterSpawning.RemoveMonster(this);
-        monsterSpawning.SpawnCoolDown(2.0f);
     }
 
     IEnumerator HideCanvasWithDelay()
     {
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(0.5f);
         monsterCanvas.enabled = false;
     }
 }

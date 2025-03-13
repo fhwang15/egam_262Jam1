@@ -10,6 +10,7 @@ public class GameManager : MonoBehaviour
 
     private MonsterSpawning monsterSpawning;
     private Monster lockedOnMonster = null;
+    
     public int score = 0;
 
     public TextMeshProUGUI totalScore;
