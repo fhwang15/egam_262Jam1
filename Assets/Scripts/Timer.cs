@@ -10,11 +10,13 @@ public class Timer : MonoBehaviour
 
     public float timeRemaining = 180f;
     public float inMin;
-    public TextMeshProUGUI timerText; 
-    private bool isRunning = true; 
+    public TextMeshProUGUI timerText;
+
+    public GameObject Replay;
 
     void Start()
     {
+        Replay.SetActive(false);
         StartCoroutine(StartTimer());
     }
 
@@ -29,9 +31,11 @@ public class Timer : MonoBehaviour
         }
 
         timerText.text = "Time's Up!";
-        isRunning = false;
+
 
         Time.timeScale = 0f;
+
+        Replay.SetActive(true);
 
         entryEnter.ShowEntryUI();
 
