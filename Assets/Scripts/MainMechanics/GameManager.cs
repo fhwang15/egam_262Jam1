@@ -51,6 +51,11 @@ public class GameManager : MonoBehaviour
             {
                 //if there's no locked on monster, try locking it on.
                 TryLockOnMonster(pressedKey);
+                if (lockedOnMonster != null) 
+                {
+                    ProcessComboInput(pressedKey);
+                }
+
             }
             else
             {
@@ -82,35 +87,43 @@ public class GameManager : MonoBehaviour
 
                 return;
             }
+
         }
     }
 
 
     void ProcessComboInput(char key)
     {
-        if (lockedOnMonster != null)
+        if (lockedOnMonster == null)
         {
-            int gainedScore = lockedOnMonster.ProcessInput(key);
+            TryLockOnMonster(key);
 
-            if (gainedScore > 0)
+            if (lockedOnMonster != null)
             {
-                score += gainedScore;
+                HandleComboInput(key);
             }
-            else
-            {
-                ClearLockOn();
-                lockedOnMonster.SetLockOn(false);
-                lockedOnMonster = null;
-                return;
-            }
+            return;
+        }
 
-            if (lockedOnMonster != null && lockedOnMonster.IsComboComplete())
-            {
-                lockedOnMonster.SetLockOn(false);
-                lockedOnMonster = null;
-            }
+        HandleComboInput(key);
+    }
+
+    void HandleComboInput(char key)
+    {
+        if (lockedOnMonster == null) return;
+        int gainedScore = lockedOnMonster.ProcessInput(key);
+
+        if (gainedScore == 0)
+        {
+            ClearLockOn();
+        }
+
+        if (lockedOnMonster != null && lockedOnMonster.IsComboComplete())
+        {
+            ClearLockOn();
         }
     }
+
 
     public void ClearLockOn()
     {

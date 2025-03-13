@@ -5,6 +5,7 @@ using System.Collections;
 using System.Linq;
 using TMPro;
 using UnityEngine.UI;
+using UnityEngine.Rendering;
 
 public class Monster : MonoBehaviour
 {
@@ -26,6 +27,9 @@ public class Monster : MonoBehaviour
     public Transform KeyTransform;
     public Canvas monsterCanvas;
     private int originalSortingOrder;
+
+    public GameObject floatingScorePrefab;
+
 
     void Start()
     {
@@ -67,17 +71,12 @@ public class Monster : MonoBehaviour
         if (state)
         {
             GameManager.Instance.lockOnBackground.SetActive(true);
-
-            // 현재 몬스터의 우선순위를 최상위로 변경
             monsterCanvas.sortingOrder = 200;
             sprite.sortingOrder = 200;
-
-            // LockOnBackground는 그보다 낮게 설정
             GameManager.Instance.lockOnBackground.GetComponentInParent<Canvas>().sortingOrder = 150;
         }
         else
         {
-            // 원래 상태로 복원
             GameManager.Instance.lockOnBackground.SetActive(false);
             monsterCanvas.sortingOrder = originalSortingOrder;
             sprite.sortingOrder = originalSortingOrder;
@@ -87,7 +86,7 @@ public class Monster : MonoBehaviour
     public void SetCombo(string newCombo)
     {
         combo = newCombo;
-        currentComboIndex = 1;
+        currentComboIndex = 0;
         UpdateComboUI();
     }
 
@@ -100,12 +99,14 @@ public class Monster : MonoBehaviour
     {
         if (currentComboIndex < combo.Length && input == combo[currentComboIndex])
         {
-            int score = comboScores[currentComboIndex]; 
+            int score = comboScores[currentComboIndex];
+            Debug.Log(score);
+            OnPlayerInput(currentComboIndex);
             currentComboIndex++;
 
             if (IsComboComplete())
             {
-                monsterSpawning.RemoveMonster(this);
+                ShowFinalFloatingText();
             }
 
             return score;
@@ -116,6 +117,8 @@ public class Monster : MonoBehaviour
             return 0;
         }
     }
+
+
 
     public bool IsComboComplete()
     {
@@ -128,7 +131,6 @@ public class Monster : MonoBehaviour
         for (int i = 0; i < currentComboIndex; i++)
         {
             totalScore += comboScores[i];
-            Debug.Log($"Score Added: {comboScores[i]}");
         }
         scoreAdd = true;
 
@@ -138,9 +140,10 @@ public class Monster : MonoBehaviour
 
     void ArrangeCombo(string combo)
     {
-        foreach (Transform child in KeyTransform)
+
+        for (int i = KeyTransform.childCount - 1; i >= 0; i--)
         {
-            Destroy(child.gameObject);
+            DestroyImmediate(KeyTransform.GetChild(i).gameObject); //Frame issue so needed to use this
         }
 
         Vector3 monsterPosition = transform.position;
@@ -172,21 +175,53 @@ public class Monster : MonoBehaviour
     private void UpdateComboUI()
     {
         ArrangeCombo(combo);
-
-        if (isLockedOn)
-        {
-
-        }
-        else
-        {
-            //returns it normal
-        }
     }
 
     void OnPlayerInput(int index)
     {
-        Image buttonImage = KeyTransform.GetChild(index).GetComponentInChildren<Image>();
-        buttonImage.color = new Color(0.5f, 0.5f, 0.5f, 1f); // 어둡게 변경
+        if (index < KeyTransform.childCount)
+        {
+
+            Transform keyChild = KeyTransform.GetChild(index);
+            Image buttonImage = keyChild.Find("Image").GetComponent<Image>();
+            buttonImage.color = new Color(0.5f, 0.5f, 0.5f, 1f);
+            ShowFloatingText(index);
+        }
+    }
+
+    void ShowFloatingText(int index)
+    {
+        Vector3 spawnPosition = KeyTransform.GetChild(index).position; // 누른 키 위치
+        GameObject floatText = Instantiate(floatingScorePrefab, spawnPosition, Quaternion.identity, monsterCanvas.transform); 
+
+        int score = comboScores[index];
+        string scoreText = score.ToString();
+
+        FloatingScore floatScore = floatText.GetComponent<FloatingScore>();
+        floatScore.GetText(scoreText, Color.yellow);
+    }
+
+    void ShowFinalFloatingText()
+    {
+        int totalScore = GetTotalScore();
+
+        Vector3 spawnPosition = transform.position;
+        GameObject floatText = Instantiate(floatingScorePrefab, spawnPosition, Quaternion.identity);
+       
+        StartCoroutine(HandleScore(totalScore));
+
+        FloatingScore floatingScore = floatText.GetComponentInChildren<FloatingScore>();
+        floatingScore.GetText("+" + totalScore, Color.green);
+
+
+    }
+
+    IEnumerator HandleScore(int totalScore)
+    {
+        yield return new WaitForSeconds(1.5f);
+
+        GameManager.Instance.score += totalScore;
+        monsterSpawning.RemoveMonster(this); 
     }
 
     public void provideScore()

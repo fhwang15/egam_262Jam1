@@ -156,11 +156,12 @@ MonoBehaviour:
   - {fileID: -6155282407105978113, guid: bd5b9af74bdec5448b4fcf956ecbc5e4, type: 3}
   sprite: {fileID: 6684126077030221740}
   combo: 
-  comboScores: 0a000000140000001e000000320000005000000082000000d200000054010000
+  comboScores: 3200000064000000fa000000f4010000dc050000c4090000d80e000068100000
   currentscore: 0
   keyUICircle: {fileID: 7755472495506244681, guid: a0868f507aa6f0148b8f7fabda08d838, type: 3}
   KeyTransform: {fileID: 1897465236282778526}
   monsterCanvas: {fileID: 0}
+  floatingScorePrefab: {fileID: 6543152540486663085, guid: 75017f651bcc249418debd0a0494e819, type: 3}
 --- !u!1 &6492989372970642279
 GameObject:
   m_ObjectHideFlags: 0
