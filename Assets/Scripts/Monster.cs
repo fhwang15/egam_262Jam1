@@ -6,6 +6,7 @@ using System.Linq;
 using TMPro;
 using UnityEngine.UI;
 using UnityEngine.Rendering;
+using UnityEngine.SocialPlatforms.Impl;
 
 public class Monster : MonoBehaviour
 {
@@ -29,6 +30,9 @@ public class Monster : MonoBehaviour
     private int originalSortingOrder;
 
     public GameObject floatingScorePrefab;
+    public Image circleTimer;
+    public float timerDuration;
+    private float timeRemaining;
 
 
     void Start()
@@ -43,23 +47,27 @@ public class Monster : MonoBehaviour
         monsterCanvas = GetComponentInChildren<Canvas>();
         originalSortingOrder = monsterCanvas.sortingOrder;
 
+        timerDuration = monsterSpawning.currentMonsterTime;
+        timeRemaining = timerDuration;
+        circleTimer.fillAmount = 1f;
 
         isLockedOn = false;
-        scoreAdd = false;
 
         UpdateComboUI();
     }
 
     private void Update()
     {
-       if (scoreAdd)
+        if (timeRemaining > 0)
         {
-            provideScore();
-            scoreAdd = false;
+            timeRemaining -= Time.deltaTime;
+            float fillAmount = Mathf.Lerp(0f, 1f, timeRemaining / timerDuration); 
+            circleTimer.fillAmount = fillAmount;
         }
         else
         {
-            return;
+            Destroy(circleTimer.gameObject);
+
         }
     }
 
@@ -100,7 +108,6 @@ public class Monster : MonoBehaviour
         if (currentComboIndex < combo.Length && input == combo[currentComboIndex])
         {
             int score = comboScores[currentComboIndex];
-            Debug.Log(score);
             OnPlayerInput(currentComboIndex);
             currentComboIndex++;
 
@@ -140,7 +147,6 @@ public class Monster : MonoBehaviour
 
     void ArrangeCombo(string combo)
     {
-
         for (int i = KeyTransform.childCount - 1; i >= 0; i--)
         {
             DestroyImmediate(KeyTransform.GetChild(i).gameObject); //Frame issue so needed to use this
@@ -191,44 +197,52 @@ public class Monster : MonoBehaviour
 
     void ShowFloatingText(int index)
     {
-        Vector3 spawnPosition = KeyTransform.GetChild(index).position; // 누른 키 위치
+        Vector3 spawnPosition = KeyTransform.GetChild(index).position;
         GameObject floatText = Instantiate(floatingScorePrefab, spawnPosition, Quaternion.identity, monsterCanvas.transform); 
 
         int score = comboScores[index];
         string scoreText = score.ToString();
 
         FloatingScore floatScore = floatText.GetComponent<FloatingScore>();
-        floatScore.GetText(scoreText, Color.yellow);
+        floatScore.GetText("+" + scoreText, Color.yellow);
     }
 
     void ShowFinalFloatingText()
     {
+
         int totalScore = GetTotalScore();
+        string scoreText = totalScore.ToString();
 
         Vector3 spawnPosition = transform.position;
-        GameObject floatText = Instantiate(floatingScorePrefab, spawnPosition, Quaternion.identity);
+        GameObject floatText = Instantiate(floatingScorePrefab, spawnPosition, Quaternion.identity, monsterCanvas.transform);
        
+
+        FloatingScore floatingScore = floatText.GetComponent<FloatingScore>();
+        floatingScore.GetText("+" + scoreText, Color.green);
+
+        sprite.enabled = false;
+
+        StartCoroutine(HideCanvasWithDelay());
+
         StartCoroutine(HandleScore(totalScore));
-
-        FloatingScore floatingScore = floatText.GetComponentInChildren<FloatingScore>();
-        floatingScore.GetText("+" + totalScore, Color.green);
-
 
     }
 
     IEnumerator HandleScore(int totalScore)
     {
-        yield return new WaitForSeconds(1.5f);
+        yield return new WaitForSeconds(0.5f);
 
         GameManager.Instance.score += totalScore;
-        monsterSpawning.RemoveMonster(this); 
+        
+        yield return new WaitForSeconds(1.5f);
+
+        monsterSpawning.RemoveMonster(this);
+        monsterSpawning.SpawnCoolDown(2.0f);
     }
 
-    public void provideScore()
+    IEnumerator HideCanvasWithDelay()
     {
-        currentscore = GetTotalScore();
-        GameManager.Instance.score = GameManager.Instance.score + currentscore;
+        yield return new WaitForSeconds(1f);
+        monsterCanvas.enabled = false;
     }
-
-
 }

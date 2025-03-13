@@ -17,7 +17,9 @@ public class MonsterSpawning : MonoBehaviour
     public float difficultyIncreaseRate = 0.05f; //Will be used later
     public float monsterSpawnTime;
 
-    private float currentMonsterTime; //
+    public float currentMonsterTime;
+
+    public bool spawnDelay = false;
 
     //Monster
     private List<Monster> activeMonsters = new List<Monster>();
@@ -46,7 +48,7 @@ public class MonsterSpawning : MonoBehaviour
     {
         while (true)
         {
-            if(activeMonsters.Count < spawnPoints.Length) //If all spawnpoints are not taken,
+            if(!spawnDelay && activeMonsters.Count < spawnPoints.Length) //If all spawnpoints are not taken,
             {
                 SpawnNote(); //Spawn something
             }
@@ -147,5 +149,18 @@ public class MonsterSpawning : MonoBehaviour
     {
         return activeMonsters;
     }
+
+    public void SpawnCoolDown(float cooldown)
+    {
+        StartCoroutine((SpawnCooldownRoutine(cooldown)));
+    }
+
+    IEnumerator SpawnCooldownRoutine(float cooldown)
+    {
+        spawnDelay = true;
+        yield return new WaitForSeconds(cooldown);
+        spawnDelay = false;
+    }
+    
 
 }
