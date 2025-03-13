@@ -173,7 +173,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      character_cthulhu_azathoth_0: 3961497312473159316
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

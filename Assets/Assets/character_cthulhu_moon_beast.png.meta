@@ -173,7 +173,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      character_cthulhu_moon_beast_0: -2886950429533793665
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

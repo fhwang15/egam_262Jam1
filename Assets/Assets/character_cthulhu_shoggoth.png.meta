@@ -173,7 +173,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      character_cthulhu_shoggoth_0: -6155282407105978113
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

@@ -173,7 +173,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      character_cthulhu_nyarlathotep_0: 2282194482853094087
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
