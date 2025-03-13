@@ -17,8 +17,10 @@ public class ComboGenerator : MonoBehaviour
             return null;
         }
 
+        int index_ = Random.Range(0, 2);
+
         //List that will be used for this time's code generator
-        List<char> chosenCodelist = codeList[0];
+        List<char> chosenCodelist = codeList[index_];
 
         //Letters that will be used for next
         List<char> availableFirstLetter = chosenCodelist.Except(usedFirstLetters).ToList();
@@ -32,7 +34,7 @@ public class ComboGenerator : MonoBehaviour
 
         string currentGeneratedCombo = ""; //Variables that will save the generated combo
         
-        int comboLength = Random.Range(2, chosenCodelist.Count);
+        int comboLength = Random.Range(2, chosenCodelist.Count+1);
         
         int index = Random.Range(0, availableFirstLetter.Count);
         char firstLetter = availableFirstLetter[index];
@@ -44,7 +46,6 @@ public class ComboGenerator : MonoBehaviour
             char randomKey = chosenCodelist[Random.Range(0, chosenCodelist.Count)];
             currentGeneratedCombo += randomKey;
         }
-
         return currentGeneratedCombo; //Give the generated code
     }
 

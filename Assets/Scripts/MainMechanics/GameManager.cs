@@ -6,7 +6,6 @@ public class GameManager : MonoBehaviour
 {
 
     //Player Input and Overall Scoring
-
     public static GameManager Instance;
 
     private MonsterSpawning monsterSpawning;
@@ -14,6 +13,10 @@ public class GameManager : MonoBehaviour
     public int score = 0;
 
     public TextMeshProUGUI totalScore;
+
+    //UI/Visual Feedback
+    public GameObject lockOnBackground;
+    
 
     void Awake()
     {
@@ -28,7 +31,10 @@ public class GameManager : MonoBehaviour
     }
     void Start()
     {
+        lockOnBackground.SetActive(false);
         monsterSpawning = GetComponent<MonsterSpawning>();
+
+        
     }
 
     void Update()
@@ -69,13 +75,14 @@ public class GameManager : MonoBehaviour
                 {
                     //unlock the already set on lock (cuz it means that it is wrong)
                     lockedOnMonster.SetLockOn(false);
+                    lockOnBackground.SetActive(false);
                 }
 
                 //Lock on the monster if nothing is locked.
                 lockedOnMonster = monster;
                 lockedOnMonster.SetLockOn(true);
 
-                //Some kind of visual affect -- probably layer mask.
+                lockOnBackground.SetActive(true);
                 return;
             }
         }
@@ -94,12 +101,14 @@ public class GameManager : MonoBehaviour
             else
             {
                 lockedOnMonster.SetLockOn(false);
+                lockOnBackground.SetActive(false);
                 lockedOnMonster = null;
             }
 
             if (lockedOnMonster != null && lockedOnMonster.IsComboComplete())
             {
                 lockedOnMonster.SetLockOn(false);
+                lockOnBackground.SetActive(false);
                 lockedOnMonster = null; 
             }
         }

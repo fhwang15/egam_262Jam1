@@ -67,9 +67,12 @@ public class MonsterSpawning : MonoBehaviour
             Transform currentSpawn = spawnPoints[Random.Range(0, spawnPoints.Length)];
             if (!spawnPointOccupied(currentSpawn))
             {
+
                 GameObject note = Instantiate(monsterPrefab, currentSpawn.position, Quaternion.identity);
                 Monster monster = note.GetComponent<Monster>();
                 string combo = comboGenerator.generateCombo();
+
+                
                 if (combo != null)
                 {
                     monster.SetCombo(combo);
