@@ -10,34 +10,38 @@ public class Timer : MonoBehaviour
 
     public float timeRemaining = 180f;
     public float inMin;
+    public float elapsedTime;
     public TextMeshProUGUI timerText;
 
+    //Replay Button
     public GameObject Replay;
 
     void Start()
     {
         Replay.SetActive(false);
-        StartCoroutine(StartTimer());
+
     }
 
-    IEnumerator StartTimer()
+    void Update()
     {
-        while (timeRemaining > 0)
+
+        if (timeRemaining >= 0)
         {
-            inMin = timeRemaining / 60;
-            timerText.text = $"Time: {inMin:F2}"; 
-            yield return new WaitForSeconds(1f);
-            timeRemaining--;
+
+            timeRemaining -= Time.deltaTime;
+            int minutes = Mathf.FloorToInt(timeRemaining / 60);
+            int seconds = Mathf.FloorToInt(timeRemaining % 60);
+            timerText.text = string.Format("{0:00}:{1:00}", minutes, seconds);
         }
 
-        timerText.text = "Time's Up!";
+        else
+        {
+            Time.timeScale = 0f;
 
+            Replay.SetActive(true);
+            entryEnter.ShowEntryUI();
 
-        Time.timeScale = 0f;
-
-        Replay.SetActive(true);
-
-        entryEnter.ShowEntryUI();
-
+        }
     }
+
 }

@@ -41,5 +41,20 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: Floor
+    uniqueID: 1241440879
+    locked: 0
+  - name: Grass
+    uniqueID: 2850605905
+    locked: 0
+  - name: MagicCircle
+    uniqueID: 3165639151
+    locked: 0
+  - name: Monster
+    uniqueID: 2098668983
+    locked: 0
+  - name: UI Element
+    uniqueID: 441433191
+    locked: 0
   m_RenderingLayers:
   - Default

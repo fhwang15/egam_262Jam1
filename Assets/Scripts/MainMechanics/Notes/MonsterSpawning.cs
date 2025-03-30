@@ -95,6 +95,13 @@ public class MonsterSpawning : MonoBehaviour
         {
             activeMonsters.Remove(monster);
             comboGenerator.RemoveTheFirstLetter(monster.GetFirstLetter());
+
+            // 몬스터의 UI가 비활성화되지 않았으면 안전하게 제거
+            if (monster.circleTimer != null)
+            {
+                Destroy(monster.circleTimer.gameObject);
+            }
+
             Destroy(monster.gameObject);
         }
 

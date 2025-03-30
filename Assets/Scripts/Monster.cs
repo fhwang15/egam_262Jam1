@@ -29,7 +29,6 @@ public class Monster : MonoBehaviour
     public Canvas monsterCanvas;
     private int originalSortingOrder;
 
-    public GameObject floatingScorePrefab;
     public Image circleTimer;
     public float timerDuration;
     private float timeRemaining;
@@ -65,13 +64,24 @@ public class Monster : MonoBehaviour
         if (timeRemaining > 0)
         {
             timeRemaining -= Time.deltaTime;
-            float fillAmount = Mathf.Lerp(0f, 1f, timeRemaining / timerDuration); 
-            circleTimer.fillAmount = fillAmount;
+            float fillAmount = timeRemaining / timerDuration;
+
+            if (circleTimer != null) // 안전성 검사 추가
+            {
+                // 바깥에서 안쪽으로 줄어드는 효과
+                circleTimer.fillAmount = fillAmount;
+
+                // 오수! 스타일: 입력할수록 원이 안쪽으로 줄어듬
+                float scaleFactor = Mathf.Lerp(1.2f, 1f, fillAmount);
+                circleTimer.rectTransform.localScale = new Vector3(scaleFactor, scaleFactor, 1);
+            }
         }
         else
         {
-            Destroy(circleTimer.gameObject);
-
+            if (circleTimer != null) // 안전성 검사 추가
+            {
+                Destroy(circleTimer.gameObject);
+            }
         }
     }
 
@@ -112,19 +122,23 @@ public class Monster : MonoBehaviour
         if (currentComboIndex < combo.Length && input == combo[currentComboIndex])
         {
             int score = comboScores[currentComboIndex];
+            int finalScore = score * GameManager.Instance.GetScoreMultiplier();
+            Debug.Log("ProcessInput called. Base score: " + score + ", Multiplied score: " + finalScore);
+
             OnPlayerInput(currentComboIndex);
             currentComboIndex++;
 
             if (IsComboComplete())
             {
-                ShowFinalFloatingText();
+                ShowFinalFloatingText(finalScore);
             }
 
-            return score;
+            return finalScore;
         }
         else
         {
-            monsterSpawning.RemoveMonster(this); 
+            Debug.Log("Wrong input or combo not complete. Returning 0.");
+            monsterSpawning.RemoveMonster(this);
             return 0;
         }
     }
@@ -191,55 +205,76 @@ public class Monster : MonoBehaviour
     {
         if (index < KeyTransform.childCount)
         {
-
             Transform keyChild = KeyTransform.GetChild(index);
             Image buttonImage = keyChild.Find("Image").GetComponent<Image>();
             magicCircle.OnComboInput();
 
+            // 오수! 스타일: 입력 시 순간적으로 커졌다 작아지는 효과
+            StartCoroutine(ButtonPulseEffect(buttonImage));
+
             buttonImage.color = new Color(0.5f, 0.5f, 0.5f, 1f);
             ShowFloatingText(index);
+
+            GameManager.Instance.AddCombo();
         }
     }
 
     void ShowFloatingText(int index)
     {
-        Vector3 spawnPosition = KeyTransform.GetChild(index).position;
-        GameObject floatText = Instantiate(floatingScorePrefab, spawnPosition, Quaternion.identity, monsterCanvas.transform); 
-
         int score = comboScores[index];
-        string scoreText = score.ToString();
+        Vector3 spawnPosition = KeyTransform.GetChild(index).position;
 
-        FloatingScore floatScore = floatText.GetComponent<FloatingScore>();
-        floatScore.GetText("+" + scoreText, Color.yellow);
+        // GameManager를 통해 FloatingScore 생성
+        GameManager.Instance.ShowFloatingScore(spawnPosition, score, Color.yellow);
     }
 
-    void ShowFinalFloatingText()
+
+    void ShowFinalFloatingText(int finalScore)
     {
+        Debug.Log("ShowFinalFloatingText called. Final score: " + finalScore);
 
         int totalScore = GetTotalScore();
-        string scoreText = totalScore.ToString();
+        int calculatedScore = totalScore * GameManager.Instance.GetScoreMultiplier();
+        Debug.Log("Calculated Final Score: " + calculatedScore);
 
-        Vector3 spawnPosition = transform.position;
-        GameObject floatText = Instantiate(floatingScorePrefab, spawnPosition, Quaternion.identity, monsterCanvas.transform);
-       
+        // 점수 표시
+        GameManager.Instance.ShowFloatingScore(transform.position, calculatedScore, Color.green);
 
-        FloatingScore floatingScore = floatText.GetComponent<FloatingScore>();
-        floatingScore.GetText("+" + scoreText, Color.green);
+        // 몬스터 처치 시 피버 게이지 증가
+        GameManager.Instance.AddFeverGauge(10);
+
+        // UI와 마법진 제거
+        ClearMonsterUI();
+
+        // 코루틴 호출을 GameManager를 통해 수행
+        Debug.Log("Calling HandleScore Coroutine via GameManager.");
+        GameManager.Instance.StartCoroutine(GameManager.Instance.HandleScore(calculatedScore));
+    }
+
+    void ClearMonsterUI()
+    {
+        foreach (Transform child in KeyTransform)
+        {
+            Destroy(child.gameObject);
+        }
+
+        if (magicCircle != null)
+        {
+            magicCircle.gameObject.SetActive(false);
+        }
 
         sprite.enabled = false;
-
-        StartCoroutine(HideCanvasWithDelay());
-
-        StartCoroutine(HandleScore(totalScore));
-
     }
 
     IEnumerator HandleScore(int totalScore)
     {
+        Debug.Log("HandleScore called. Total score to add: " + totalScore);
         yield return new WaitForSeconds(0.5f);
 
-        GameManager.Instance.score += totalScore;
-        
+        int finalScore = totalScore * GameManager.Instance.GetScoreMultiplier();
+        GameManager.Instance.AddScore(finalScore); // 누적 점수 추가
+        Debug.Log("Final Score Added: " + finalScore);
+
         yield return new WaitForSeconds(1.5f);
 
         monsterSpawning.RemoveMonster(this);
@@ -250,4 +285,24 @@ public class Monster : MonoBehaviour
         yield return new WaitForSeconds(0.5f);
         monsterCanvas.enabled = false;
     }
+
+
+    IEnumerator ButtonPulseEffect(Image buttonImage)
+    {
+        float duration = 0.1f;
+        float elapsed = 0f;
+
+        Vector3 originalScale = buttonImage.transform.localScale;
+        Vector3 enlargedScale = originalScale * 1.2f;
+
+        while (elapsed < duration)
+        {
+            buttonImage.transform.localScale = Vector3.Lerp(originalScale, enlargedScale, elapsed / duration);
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        buttonImage.transform.localScale = originalScale;
+    }
+
 }
